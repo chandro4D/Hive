@@ -1,137 +1,425 @@
 import tkinter as tk
 from tkinter import messagebox
+import time
+import ttkbootstrap as ttk  
+import datetime
+from PIL import Image, ImageTk
 
 class TaskApp(tk.Tk):
     def __init__(self):
         super().__init__()
-        
-        self.title("HIVE")
-        self.geometry("600x400")
-        self.configure(bg="#2C3E50") 
-        
-        self.tasks = []
 
-        container = tk.Frame(self, bg="#2C3E50")
-        container.pack(fill="both", expand=True)
+        self.title("HIVE")
+        self.geometry("1550x850")
+
+        self.tasks = []
+        self.theme = "white"
+
+        main_frame = tk.Frame(self)
+        main_frame.pack(fill="both", expand=True)
+
+        self.button_panel = tk.Frame(main_frame, width=250, padx=100, bg="#C3C7F3")
+        self.button_panel.pack(side="left", fill="y", padx=(10, 0), pady=20)
+
+        separator = tk.Frame(main_frame, width=2, bg="black")
+        separator.pack(side="left", fill="y", padx=10)
         
+        self.content_frame = tk.Frame(main_frame)
+        self.content_frame.pack(side="left", fill="both", expand=True, padx=10, pady=10)
+  
         self.frames = {}
-        
-        for Page in (HomePage, AddTaskPage, ViewTasksPage, SettingsPage):
+        for Page in (HomePage, AddTaskPage, ViewTasksPage,StopwatchPage,SettingsPage):
             page_name = Page.__name__
-            frame = Page(parent=container, controller=self)
+            frame = Page(parent=self.content_frame, controller=self)
             self.frames[page_name] = frame
             frame.grid(row=0, column=0, sticky="nsew")
-        
+
         self.show_frame("HomePage")
-    
+        self.create_nav_buttons()
+
+    def create_nav_buttons(self):
+        buttons_info = [
+            ("🏠 Home", "HomePage"),
+            ("➕ Add Task", "AddTaskPage"),
+            ("📋 View Tasks", "ViewTasksPage"),
+            ("⏱️ Stopwatch", "StopwatchPage"),
+             ("⚙️ Settings", "SettingsPage"),
+        ]
+
+        title_label = tk.Label(
+        self.button_panel, text="HIVE", font=("Georgia", 34, "bold",),
+         fg="orange", bg="#34495E"
+       )
+
+        title_label.pack(pady=(50, 20))      
+            
+        for text, page_name in buttons_info:
+            button = ttk.Button(
+                self.button_panel, text=text, width=20, bootstyle="dark-outline",
+                command=lambda name=page_name: self.show_frame(name)
+            )
+            button.pack(pady=15, padx=5, ipadx=20)    
+           
+
     def show_frame(self, page_name):
-        """Bring a frame to the front"""
         frame = self.frames[page_name]
         if page_name == "ViewTasksPage":
-            frame.refresh_task_list() 
+            frame.refresh_task_list()
         frame.tkraise()
-
-    def add_task(self, title, description):
-        """Save a new task and display a confirmation message"""
-        if title:
-            self.tasks.append({"title": title, "description": description})
-            messagebox.showinfo("Success", "Task saved successfully!")
-            self.show_frame("HomePage")
-        else:
-            messagebox.showwarning("Error", "Task title cannot be empty.")
-
 
 class HomePage(tk.Frame):
     def __init__(self, parent, controller):
-        super().__init__(parent, bg="#2C3E50") 
+        super().__init__(parent)
         self.controller = controller
         
-       
-        label = tk.Label(self, text="Welcome To Our Task Management App Hive", font=("Helvetica", 30, "bold"), fg="#ECF0F1", bg="#2C3E50")
-        label.pack(side="top", anchor="e", padx=380, pady=50)  
-       
-        button_width = 20
-        add_task_button = tk.Button(self, text="Add New Task", font=("Helvetica", 14), bg="#3498DB", fg="#ECF0F1",
-                                    activebackground="#2980B9", activeforeground="#ECF0F1", width=button_width,
-                                    command=lambda: controller.show_frame("AddTaskPage"))
-        add_task_button.pack(pady=10, ipadx=20, ipady=10)
+        # image_path = r"C:\DesktopApp\Test\Image1.jpg"  
+        # image_path = r"C:\DesktopApp\Test\Image.png" 
+        # image_path = r"C:\DesktopApp\Test\Image3.jpg" 
+        # image_path = r"C:\DesktopApp\Test\Image4.jpg"
+        # image_path = r"C:\DesktopApp\Test\Image5.jpg"
+        image_path = r"C:\DesktopApp\Test\Image6.jpg"
         
-        view_tasks_button = tk.Button(self, text="View All Tasks", font=("Helvetica", 14), bg="#E74C3C", fg="#ECF0F1",
-                                      activebackground="#C0392B", activeforeground="#ECF0F1", width=button_width,
-                                      command=lambda: controller.show_frame("ViewTasksPage"))
-        view_tasks_button.pack(pady=10, ipadx=20, ipady=10)
         
-        settings_button = tk.Button(self, text="Settings", font=("Helvetica", 14), bg="#2ECC71", fg="#ECF0F1",
-                                    activebackground="#27AE60", activeforeground="#ECF0F1", width=button_width,
-                                    command=lambda: controller.show_frame("SettingsPage"))
-        settings_button.pack(pady=10, ipadx=20, ipady=10)
+        
+         
+        image = Image.open(image_path)
+        image = image.resize((1200, 770))  
+        
+        self.bg_image = ImageTk.PhotoImage(image)  
+        
+        canvas = tk.Canvas(self, width=1200, height=770)  
+        canvas.pack(fill="both", expand=True)
+        
+        canvas.create_image(0, 0, image=self.bg_image, anchor="nw")  
+        
+        canvas.create_text(600, 120, text="Welcome To Hive", font=("Georgia", 40, "bold"), fill="#6F4E37")
+        canvas.create_text(600, 200, text="Your Efficient Task Manager", font=("Georgia", 40, "bold"), fill="#6F4E37")
+
+        
+        # label = tk.Label(self, text="Welcome To Hive", font=("Georgia", 40, "bold"), fg="#A36361")
+        # label.pack(pady=(150, 40),padx=200)
+        # sub_label = tk.Label(self, text="Your Efficient Task Manager", font=("Georgia", 40), fg="#BDC3C7", bg="#34495E")
+        # sub_label.pack(pady=10)
+
+
+def custom_messagebox(title, message, color):
+    custom_box = tk.Toplevel()
+    custom_box.title(title)
+    custom_box.configure(bg=color)
+
+    width, height = 500, 200  
+    screen_width = custom_box.winfo_screenwidth()
+    screen_height = custom_box.winfo_screenheight()
+    x = (screen_width // 2) - (width // 2)
+    y = (screen_height // 2) - (height // 2)
+    custom_box.geometry(f"{width}x{height}+{x}+{y}")
+
+    label = tk.Label(custom_box, text=message, font=("Georgia", 15), bg=color, fg="white", wraplength=450)
+    label.pack(pady=40)
+
+    ok_button = tk.Button(custom_box, text="OK", font=("Georgia", 20), command=custom_box.destroy, bg="white", fg="black")
+    ok_button.pack(pady=10)
+
+    custom_box.grab_set()
+    custom_box.mainloop()
 
 
 class AddTaskPage(tk.Frame):
     def __init__(self, parent, controller):
-        super().__init__(parent, bg="#2C3E50")
+        super().__init__(parent)
         self.controller = controller
-        
 
-        label = tk.Label(self, text="Add New Task", font=("Helvetica", 24, "bold"), fg="#ECF0F1", bg="#2C3E50")
-        label.pack(pady=20)
+        self.canvas = tk.Canvas(self, bg="#F0F0F0", highlightthickness=0)
+        self.canvas.pack(fill="both", expand=True, pady=50) 
+        # self.create_gradient("#F0F0F0", "#D6EAF8")
+        self.create_gradient( "#C850C0","#4158D0")
+        # self.create_gradient( "#FFC0D6","#E0709F")
+        # self.create_gradient( "#FFC0D6","#E0709F")
         
-   
-        task_label = tk.Label(self, text="Task Title:", font=("Helvetica", 20), fg="#ECF0F1", bg="#2C3E50")
-        task_label.pack(pady=5)
-        self.task_entry = tk.Entry(self, font=("Helvetica", 25), width=27)
-        self.task_entry.pack(pady=5)
+        label = tk.Label(self.canvas, text="Add New Task", font=("Georgia", 30, "bold"), fg="#2C3E50")
+        label.pack(pady=(50, 10))
         
-        desc_label = tk.Label(self, text="Task Description:", font=("Helvetica", 20), fg="#ECF0F1", bg="#2C3E50")
-        desc_label.pack(pady=5)
-        self.desc_entry = tk.Text(self, font=("Helvetica", 16), width=40, height=5)
-        self.desc_entry.pack(pady=5)
+        task_label = tk.Label(self.canvas, text="Task Title", font=("Georgia", 15), fg="#1C2833", bg="#D6EAF8")
+        task_label.pack(anchor="w", padx=100, pady=(15, 5))
+
+        self.task_entry = tk.Entry(self.canvas, font=("Georgia", 15), bg="#FFFFFF", fg="#1C2833",
+                                   relief="groove", bd=2)
+        self.task_entry.pack(ipady=6, padx=100, pady=5, anchor="w", fill="x")
         
-        save_button = tk.Button(self, text="Save Task", font=("Helvetica", 14), bg="#3498DB", fg="#ECF0F1",
-                                activebackground="#2980B9", activeforeground="#ECF0F1",
-                                command=lambda: controller.add_task(self.task_entry.get(), self.desc_entry.get("1.0", "end-1c")))
-        save_button.pack(pady=15, ipadx=20, ipady=5)
-        
-        back_button = tk.Button(self, text="Back to Home", font=("Helvetica", 12), bg="#E74C3C", fg="#ECF0F1",
-                                activebackground="#C0392B", activeforeground="#ECF0F1", command=lambda: controller.show_frame("HomePage"))
-        back_button.pack(pady=5)
+        desc_label = tk.Label(self.canvas, text="Task Description", font=("Georgia", 15), fg="#1C2833", bg="#D6EAF8")
+        desc_label.pack(anchor="w", padx=100, pady=(20, 5))
+
+        self.desc_entry = tk.Text(self.canvas, font=("Georgia", 15), bg="#FFFFFF", fg="#1C2833",
+                                  relief="groove", bd=2, height=6)
+        self.desc_entry.pack(padx=100, pady=5, anchor="w", fill="x")
+      
+        priority_label = tk.Label(self.canvas, text="Task Priority", font=("Georgia", 15), fg="#1C2833", bg="#D6EAF8")
+        priority_label.pack(anchor="w", padx=100, pady=(20, 5))
+
+        self.priority_var = tk.StringVar()
+        self.priority_menu = ttk.Combobox(self.canvas, textvariable=self.priority_var, font=("Georgia", 12))
+        self.priority_menu['values'] = ("Select Priority", "High", "Medium", "Low")
+        self.priority_menu.pack(ipady=1, padx=100, pady=5, anchor="w", fill="x")
+        self.priority_menu.current(0)
+      
+        save_button = tk.Button(
+            self.canvas, text="Save Task", font=("Georgia", 14, "bold"),
+            bg="#2980B9", fg="#FFFFFF", activebackground="#3498DB",
+            activeforeground="#FFFFFF", relief="flat",
+            command=self.save_task, padx=8, pady=8, cursor="hand2"
+        )
+        save_button.pack(pady=(30, 30), ipadx=20, ipady=5)
+      
+        save_button.bind("<Enter>", lambda e: save_button.config(bg="#3498DB"))
+        save_button.bind("<Leave>", lambda e: save_button.config(bg="#2980B9"))
+
+    def create_gradient(self, *colors):
+      width = self.winfo_screenwidth()
+      height = self.winfo_screenheight()
+      gradient_steps = 100
+      num_colors = len(colors)
+
+      for i in range(gradient_steps):
+          t = i / gradient_steps  
+          color = colors[0]  
+          for j in range(1, num_colors):
+              color = self.mix_colors(color, colors[j], t)  
+          self.canvas.create_rectangle(0, height * i / gradient_steps, width,
+                                       height * (i + 1) / gradient_steps, outline="", fill=color)
+
+    def mix_colors(self, color1, color2, t):
+       c1 = tuple(int(color1.lstrip("#")[i:i + 2], 16) for i in (0, 2, 4))
+       c2 = tuple(int(color2.lstrip("#")[i:i + 2], 16) for i in (0, 2, 4))
+       mixed = tuple(int(c1[i] * (1 - t) + c2[i] * t) for i in range(3))
+       return "#%02x%02x%02x" % mixed
+
+    def save_task(self):
+        title = self.task_entry.get().strip()
+        description = self.desc_entry.get("1.0", "end-1c").strip()
+        priority = self.priority_var.get().strip()
+
+        if not title or not description:
+            custom_messagebox("Error", "Both Task Title and Description are required!!!", "red")
+        elif priority == "Select Priority":
+            custom_messagebox("Error", "Please select a priority level for the task!!!", "orange")
+        else:
+            
+            current_date = datetime.datetime.now().strftime("%d/%m/%Y")
+            current_datetime = datetime.datetime.now()
+            current_time = current_datetime.strftime("%H:%M:%S")
+            serial_number = len(self.controller.tasks) + 1
+            task_data = {
+                "serial": serial_number,
+                "date": current_date,
+                "title": title,
+                "description": description,
+                "priority": priority,
+                "time": current_time
+            }
+            self.controller.tasks.append(task_data)
+            custom_messagebox("Success", f"Task No {serial_number} added successfully!!!", "green")
+            
+            self.task_entry.delete(0, tk.END)
+            self.desc_entry.delete("1.0", tk.END)
+            self.priority_var.set("Select Priority")
 
 class ViewTasksPage(tk.Frame):
     def __init__(self, parent, controller):
-        super().__init__(parent, bg="#2C3E50")
+        super().__init__(parent, bg="#F0F3F4")  
         self.controller = controller
+        self.configure(bg="#F0F3F4") 
         
-        label = tk.Label(self, text="All Tasks", font=("Helvetica", 24, "bold"), fg="#ECF0F1", bg="#2C3E50")
-        label.pack(pady=20)
+        label = tk.Label(self, text="YOUR TASKS", font=("Georgia", 30, "bold"), fg="#34495E", bg="#F0F3F4")
+        label.pack(pady=(70, 50))
+                
+        columns_frame = tk.Frame(self, bg="#F0F3F4")
+        columns_frame.pack(fill="both", expand=True, padx=2)
+       
+        self.high_priority_frame = self.create_task_frame(columns_frame, "#E74C3C", "HIGH PRIORITY")
+        self.high_priority_frame.grid(row=0, column=0, sticky="nsew", padx=1, pady=2)
+
+        self.medium_priority_frame = self.create_task_frame(columns_frame, "#F39C12", "MEDIUM PRIORITY")
+        self.medium_priority_frame.grid(row=0, column=1, sticky="nsew", padx=1, pady=2)
+
+        self.low_priority_frame = self.create_task_frame(columns_frame, "#2ECC71", "LOW PRIORITY")
+        self.low_priority_frame.grid(row=0, column=2, sticky="nsew", padx=1, pady=2)
+       
+        columns_frame.columnconfigure(0, weight=1)
+        columns_frame.columnconfigure(1, weight=1)
+        columns_frame.columnconfigure(2, weight=1)
+
+    def create_task_frame(self, parent_frame, bg_color, title):
+        frame = tk.Frame(
+            parent_frame,
+            bg=bg_color,
+            padx=00,
+            pady=20,
+            relief="flat",
+            borderwidth=1,
+            highlightbackground="#BDC3C7", highlightthickness=1,
+            bd=0,
+            width=200
+        )
+        self.create_column(frame, title)
+        return frame
+
+    def create_column(self, frame, title):
         
-        self.task_listbox = tk.Listbox(self, font=("Helvetica", 20), width=50, height=10, bg="#ECF0F1")
-        self.task_listbox.pack(pady=10)
+        label = tk.Label(
+            frame,
+            text=title,
+            font=("Georgia", 18, "bold"),
+            fg="#FFFFFF",
+            bg=frame["bg"]
+        )
+        label.pack(pady=(10, 5))
+       
+        listbox = tk.Listbox(
+            frame,
+            font=("Helvetica", 14),
+            bg="#ECF0F1", 
+            fg="#2C3E50",
+            borderwidth=0,
+            highlightthickness=0,
+            selectbackground="#BDC3C7",  
+            selectforeground="#2C3E50",
+            height=10,
+            relief="flat",
+            bd=0,
+            width=30
+        )
+        listbox.pack(fill="both", padx=0, pady=5, expand=True)
+       
+        listbox.bind("<Double-1>", self.confirm_and_delete_task)
         
-        back_button = tk.Button(self, text="Back to Home", font=("Helvetica", 12), bg="#E74C3C", fg="#ECF0F1",
-                                activebackground="#C0392B", activeforeground="#ECF0F1", command=lambda: controller.show_frame("HomePage"))
-        back_button.pack(pady=10)
+        listbox.bind("<Enter>", lambda event, lb=listbox: lb.config(bg="#D5DBDB"))
+        listbox.bind("<Leave>", lambda event, lb=listbox: lb.config(bg="#ECF0F1"))
+
+        frame.listbox = listbox
+
+    def confirm_and_delete_task(self, event):
+        listbox = event.widget
+        selected_task_index = listbox.curselection()
+
+        if selected_task_index:
+            task_text = listbox.get(selected_task_index)
+           
+            confirm = messagebox.askyesno("Delete Task", f"Are you sure you want to delete this task?\n\n{task_text}")
+            if confirm:
+                self.delete_task(listbox, selected_task_index)
+
+    def delete_task(self, listbox, selected_task_index):
+        task_text = listbox.get(selected_task_index)
+        listbox.delete(selected_task_index)
+       
+        task_serial = int(task_text.split(".")[0])
+        self.controller.tasks = [
+            task for task in self.controller.tasks if task["serial"] != task_serial
+        ]
+       
+        for index, task in enumerate(self.controller.tasks, start=1):
+            task["serial"] = index
+       
+        self.refresh_task_list()
 
     def refresh_task_list(self):
-        """Update the listbox with current tasks"""
-        self.task_listbox.delete(0, tk.END)
+        
+        for frame in [self.high_priority_frame, self.medium_priority_frame, self.low_priority_frame]:
+            frame.listbox.delete(0, tk.END)
+        
         for task in self.controller.tasks:
-            self.task_listbox.insert(tk.END, f"{task['title']}: {task['description']}")
+            task_text = f"{task['serial']}.{task['date']}({task['time']})-->{task['title']}-->{task['description']}"
+            if task["priority"] == "High":
+                self.high_priority_frame.listbox.insert(tk.END, task_text)
+            elif task["priority"] == "Medium":
+                self.medium_priority_frame.listbox.insert(tk.END, task_text)
+            elif task["priority"] == "Low":
+                self.low_priority_frame.listbox.insert(tk.END, task_text)
+       
+        for frame, priority in zip(
+            [self.high_priority_frame, self.medium_priority_frame, self.low_priority_frame],
+            ["High", "Medium", "Low"]
+        ):
+            if not frame.listbox.size():
+                frame.listbox.insert(tk.END, "          No Tasks Added Yet!!")
 
 class SettingsPage(tk.Frame):
     def __init__(self, parent, controller):
-        super().__init__(parent, bg="#2C3E50")
+        super().__init__(parent, bg="#34495E")
         self.controller = controller
         
-        label = tk.Label(self, text="Settings", font=("Helvetica", 24, "bold"), fg="#ECF0F1", bg="#2C3E50")
-        label.pack(pady=20)
-        
-        settings_label = tk.Label(self, text="No settings available yet", font=("Helvetica", 14), fg="#ECF0F1", bg="#2C3E50")
-        settings_label.pack(pady=10)
-        
-        back_button = tk.Button(self, text="Back to Home", font=("Helvetica", 12), bg="#E74C3C", fg="#ECF0F1",
-                                activebackground="#C0392B", activeforeground="#ECF0F1", command=lambda: controller.show_frame("HomePage"))
-        back_button.pack(pady=10)
+        # self.configure(bg="#C3C7F3") 
+        self.configure(bg="#1FA0FF")
+        label = tk.Label(self, text="Settings", font=("Georgia", 40, "bold"), fg="#ECF0F1", bg="#34495E")
+        label.pack(pady=(80, 20))
 
+class StopwatchPage(tk.Frame):
+    def __init__(self, parent, controller):
+        super().__init__(parent, bg="#34495E")
+        self.controller = controller
+               
+        # self.configure(bg="#BDD1C5") 
+        # self.configure(bg="#c850C0") 
+        # self.configure(bg="#4158D0")
+        self.configure(bg="#1FA0FF") 
+        # self.configure(bg="#C3C7F3") 
+        
+        self.time_elapsed = 0
+        self.running = False
+        # Digital Clock
+        self.clock_label1 = tk.Label(self, text="Digital Clock", font=("Georgia", 35), fg="#1FA0FF")
+        self.clock_label1.pack(pady=(50, 20))      
+        self.clock_label = tk.Label(self, text="", font=("Helvetica", 40), fg="black")
+        self.clock_label.pack(pady=(00, 20))
+        self.update_clock()       
+        # Stopwatch
+        self.timer_label1 = tk.Label(self, text="StopWatch", font=("Georgia", 40))
+        self.timer_label1.pack(pady=(90,0))
+        
+        self.timer_label = tk.Label(self, text="0:00:00.00", font=("Helvetica", 48))
+        self.timer_label.pack(pady=50)
+
+        start_button = ttk.Button(self, text="Start",width=15, bootstyle="success", command=self.start_timer)
+        start_button.pack(side="left", padx=(370,0), pady=00, ipadx=10, ipady=15)
+        
+        stop_button = ttk.Button(self, text="Stop",width=15, bootstyle="danger", command=self.stop_timer)
+        stop_button.pack(side="left", padx=30, pady=00, ipadx=10, ipady=15)
+        
+        reset_button = ttk.Button(self, text="Reset",width=15, bootstyle="warning", command=self.reset_timer)
+        reset_button.pack(side="left", ipady=15)
+    
+    def update_clock(self):
+        hour = time.strftime("%I")
+        minute = time.strftime("%M")
+        second = time.strftime("%S")
+        am_pm = time.strftime("%p")
+
+        self.clock_label.config(text=f"{hour}:{minute}:{second} {am_pm}")
+        self.after(1000, self.update_clock)
+    
+    def start_timer(self):
+        if not self.running:
+            self.running = True
+            self.update_timer()
+
+    def stop_timer(self):
+        self.running = False
+
+    def reset_timer(self):
+        self.running = False
+        self.time_elapsed = 0
+        self.timer_label.config(text="0:00:00:00")
+
+    def update_timer(self):
+        if self.running:
+            self.time_elapsed += 10
+            milliseconds = self.time_elapsed % 1000 // 10
+            total_seconds = self.time_elapsed // 1000
+            minutes, seconds = divmod(total_seconds, 60)
+            hours, minutes = divmod(minutes, 60)
+            self.timer_label.config(text=f"{hours}:{minutes:02d}:{seconds:02d}.{milliseconds:02d}")
+            self.after(10, self.update_timer)
+    
 if __name__ == "__main__":
     app = TaskApp()
     app.mainloop()
