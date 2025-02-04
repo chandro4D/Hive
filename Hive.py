@@ -355,48 +355,50 @@ class SettingsPage(tk.Frame):
 
 class StopwatchPage(tk.Frame):
     def __init__(self, parent, controller):
-        super().__init__(parent, bg="#34495E")
+        super().__init__(parent)
         self.controller = controller
-               
-        # self.configure(bg="#BDD1C5") 
-        # self.configure(bg="#c850C0") 
-        # self.configure(bg="#4158D0")
-        self.configure(bg="#1FA0FF") 
-        # self.configure(bg="#C3C7F3") 
-        
         self.time_elapsed = 0
         self.running = False
-        # Digital Clock
-        self.clock_label1 = tk.Label(self, text="Digital Clock", font=("Georgia", 35), fg="#1FA0FF")
-        self.clock_label1.pack(pady=(50, 20))      
-        self.clock_label = tk.Label(self, text="", font=("Helvetica", 40), fg="black")
-        self.clock_label.pack(pady=(00, 20))
-        self.update_clock()       
-        # Stopwatch
-        self.timer_label1 = tk.Label(self, text="StopWatch", font=("Georgia", 40))
-        self.timer_label1.pack(pady=(90,0))
-        
-        self.timer_label = tk.Label(self, text="0:00:00.00", font=("Helvetica", 48))
-        self.timer_label.pack(pady=50)
 
-        start_button = ttk.Button(self, text="Start",width=15, bootstyle="success", command=self.start_timer)
-        start_button.pack(side="left", padx=(370,0), pady=00, ipadx=10, ipady=15)
+        self.bg_image = Image.open("C:/DesktopApp/Test/Image1.jpg")  
+        self.bg_image = self.bg_image.resize((1150, 850), Image.LANCZOS)
+        self.bg_photo = ImageTk.PhotoImage(self.bg_image)
+
+        self.canvas = tk.Canvas(self, width=1150, height=850)
+        self.canvas.pack(fill="both", expand=True)
+        self.canvas.create_image(0, 0, image=self.bg_photo, anchor="nw")
         
-        stop_button = ttk.Button(self, text="Stop",width=15, bootstyle="danger", command=self.stop_timer)
-        stop_button.pack(side="left", padx=30, pady=00, ipadx=10, ipady=15)
+        # **Digital Clock**
+        self.clock_label1 = self.canvas.create_text(550, 150, text="Digital Clock", font=("Georgia", 45, "bold"), fill="white")
+        self.clock_label = self.canvas.create_text(550, 250, text="", font=("Helvetica", 45, "bold"), fill="yellow")
+        self.update_clock()
+
+        # **Stopwatch**
+        self.timer_label1 = self.canvas.create_text(550, 390, text="Stopwatch", font=("Georgia", 50, "bold"), fill="white")
+        self.timer_label = self.canvas.create_text(550, 500, text="0:00:00.00", font=("Helvetica", 50, "bold"), fill="yellow")
         
-        reset_button = ttk.Button(self, text="Reset",width=15, bootstyle="warning", command=self.reset_timer)
-        reset_button.pack(side="left", ipady=15)
-    
+        # **Buttons 
+        start_button = ttk.Button(self, text="START", width=20, bootstyle="success", command=self.start_timer)
+        self.start_button_window = self.canvas.create_window(380, 620, window=start_button)
+
+        stop_button = ttk.Button(self, text="STOP", width=20, bootstyle="danger", command=self.stop_timer)
+        self.stop_button_window = self.canvas.create_window(560, 620, window=stop_button)
+
+        reset_button = ttk.Button(self, text="RESET", width=20, bootstyle="warning", command=self.reset_timer)
+        self.reset_button_window = self.canvas.create_window(740, 620, window=reset_button)
+       
+        start_button.config(padding=(10, 15))  
+        stop_button.config(padding=(10, 15))   
+        reset_button.config(padding=(10, 15)) 
+        
     def update_clock(self):
         hour = time.strftime("%I")
         minute = time.strftime("%M")
         second = time.strftime("%S")
         am_pm = time.strftime("%p")
-
-        self.clock_label.config(text=f"{hour}:{minute}:{second} {am_pm}")
+        self.canvas.itemconfig(self.clock_label, text=f"{hour}:{minute}:{second} {am_pm}")
         self.after(1000, self.update_clock)
-    
+
     def start_timer(self):
         if not self.running:
             self.running = True
@@ -408,7 +410,7 @@ class StopwatchPage(tk.Frame):
     def reset_timer(self):
         self.running = False
         self.time_elapsed = 0
-        self.timer_label.config(text="0:00:00:00")
+        self.canvas.itemconfig(self.timer_label, text="0:00:00.00")
 
     def update_timer(self):
         if self.running:
@@ -417,8 +419,9 @@ class StopwatchPage(tk.Frame):
             total_seconds = self.time_elapsed // 1000
             minutes, seconds = divmod(total_seconds, 60)
             hours, minutes = divmod(minutes, 60)
-            self.timer_label.config(text=f"{hours}:{minutes:02d}:{seconds:02d}.{milliseconds:02d}")
+            self.canvas.itemconfig(self.timer_label, text=f"{hours}:{minutes:02d}:{seconds:02d}.{milliseconds:02d}")
             self.after(10, self.update_timer)
+    
     
 if __name__ == "__main__":
     app = TaskApp()
