@@ -345,13 +345,46 @@ class ViewTasksPage(tk.Frame):
 
 class SettingsPage(tk.Frame):
     def __init__(self, parent, controller):
-        super().__init__(parent, bg="#34495E")
+        super().__init__(parent)
         self.controller = controller
+
+        image_path = r"C:\DesktopApp\Test\Image5.jpg"  
         
-        # self.configure(bg="#C3C7F3") 
-        self.configure(bg="#1FA0FF")
-        label = tk.Label(self, text="Settings", font=("Georgia", 40, "bold"), fg="#ECF0F1", bg="#34495E")
-        label.pack(pady=(80, 20))
+        image = Image.open(image_path)
+        image = image.resize((1200, 770))  
+        
+        self.bg_image = ImageTk.PhotoImage(image)
+        
+        self.canvas = tk.Canvas(self, width=1200, height=770)
+        self.canvas.pack(fill="both", expand=True)
+        
+        self.canvas.create_image(0, 0, image=self.bg_image, anchor="nw")
+        
+        self.canvas.create_text(600, 120, text="Settings", font=("Georgia", 40, "bold"), fill="#6F4E37")
+
+        self.theme_button = ttk.Button(
+            self, text="Switch to Dark Or Light", width=20, 
+            bootstyle="warning", command=self.toggle_theme
+        )
+        self.theme_button_window = self.canvas.create_window(250, 400, window=self.theme_button)
+
+    def toggle_theme(self):
+        """Toggle the theme between light and dark."""
+        self.controller.switch_theme()
+
+    def apply_theme(self, theme):
+        """Apply the given theme to this page."""
+        if theme == "light":
+            self.config(bg="#ECF0F1")
+            self.theme_button.config(text="Switch to Dark Theme", bootstyle="light-outline")
+        else:
+            self.config(bg="#34495E")
+            self.theme_button.config(text="Switch to Light Theme", bootstyle="dark-outline")
+
+        if theme == "light":
+            self.canvas.config(bg="#ECF0F1")
+        else:
+            self.canvas.config(bg="#34495E")
 
 class StopwatchPage(tk.Frame):
     def __init__(self, parent, controller):
