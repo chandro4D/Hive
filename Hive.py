@@ -145,77 +145,78 @@ def custom_messagebox(title, message, color):
     custom_box.mainloop()
 
 
+# ------------------------------ADD TASK PAGE----------------------
+
+
 class AddTaskPage(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
         self.controller = controller
 
-        self.canvas = tk.Canvas(self, bg="#F0F0F0", highlightthickness=0)
-        self.canvas.pack(fill="both", expand=True, pady=50) 
-        # self.create_gradient("#F0F0F0", "#D6EAF8")
-        self.create_gradient( "#C850C0","#4158D0")
-        # self.create_gradient( "#FFC0D6","#E0709F")
-        # self.create_gradient( "#FFC0D6","#E0709F")
-        
-        label = tk.Label(self.canvas, text="Add New Task", font=("Georgia", 30, "bold"), fg="#2C3E50")
-        label.pack(pady=(50, 10))
-        
-        task_label = tk.Label(self.canvas, text="Task Title", font=("Georgia", 15), fg="#1C2833", bg="#D6EAF8")
-        task_label.pack(anchor="w", padx=100, pady=(15, 5))
+        self.canvas = tk.Canvas(self, highlightthickness=0)
+        self.canvas.pack(fill="both", expand=True, pady=2)
 
-        self.task_entry = tk.Entry(self.canvas, font=("Georgia", 15), bg="#FFFFFF", fg="#1C2833",
-                                   relief="groove", bd=2)
-        self.task_entry.pack(ipady=6, padx=100, pady=5, anchor="w", fill="x")
+        self.create_gradient("#C850C0", "#4158D0")  
         
-        desc_label = tk.Label(self.canvas, text="Task Description", font=("Georgia", 15), fg="#1C2833", bg="#D6EAF8")
-        desc_label.pack(anchor="w", padx=100, pady=(20, 5))
+        self.canvas.create_text(570, 80, text="Add New Task", font=("Georgia", 40, "bold"), fill="#6F4E37")
 
-        self.desc_entry = tk.Text(self.canvas, font=("Georgia", 15), bg="#FFFFFF", fg="#1C2833",
-                                  relief="groove", bd=2, height=6)
-        self.desc_entry.pack(padx=100, pady=5, anchor="w", fill="x")
-      
-        priority_label = tk.Label(self.canvas, text="Task Priority", font=("Georgia", 15), fg="#1C2833", bg="#D6EAF8")
-        priority_label.pack(anchor="w", padx=100, pady=(20, 5))
+        task_label = self.canvas.create_text(225, 150, text="Task Title", font=("Georgia", 20, "bold"), fill="#FFFFFF", anchor="w")
+        
+        self.task_entry = tk.Entry(self.canvas, font=("Georgia", 18), bg="#f2f0ef", fg="#f2f0ef", relief="groove", bd=2)
+        self.canvas.create_window(550, 200, window=self.task_entry, width=650, height=40)
+
+        desc_label = self.canvas.create_text(225, 270, text="Task Description", font=("Georgia", 20, "bold"), fill="#FFFFFF", anchor="w")
+
+        self.desc_entry = tk.Text(self.canvas, font=("Georgia", 18), bg="#FFFFFF", fg="#1C2833", relief="groove", bd=2, height=4)
+        self.canvas.create_window(550, 350, window=self.desc_entry, width=650, height=100)
+        
+        task_label = self.canvas.create_text(225, 450, text="Execution Time", font=("Georgia", 20, "bold"), fill="#FFFFFF", anchor="w")
+        
+        self.Ex_Time = tk.Entry(self.canvas, font=("Georgia", 18), bg="#FFFFFF", fg="#1C2833", relief="groove", bd=2)
+        self.canvas.create_window(550, 500, window=self.Ex_Time, width=650, height=40)
+        
+        priority_label = self.canvas.create_text(225, 570, text="Task Priority", font=("Georgia", 20, "bold"), fill="#FFFFFF", anchor="w")
 
         self.priority_var = tk.StringVar()
-        self.priority_menu = ttk.Combobox(self.canvas, textvariable=self.priority_var, font=("Georgia", 12))
+        self.priority_menu = ttk.Combobox(self.canvas, textvariable=self.priority_var, font=("Georgia", 15))
         self.priority_menu['values'] = ("Select Priority", "High", "Medium", "Low")
-        self.priority_menu.pack(ipady=1, padx=100, pady=5, anchor="w", fill="x")
+        self.canvas.create_window(550, 610, window=self.priority_menu, width=650, height=35)
         self.priority_menu.current(0)
-      
+
         save_button = tk.Button(
-            self.canvas, text="Save Task", font=("Georgia", 14, "bold"),
+            self.canvas, text="Save Task", font=("Georgia", 18, "bold"),
             bg="#2980B9", fg="#FFFFFF", activebackground="#3498DB",
             activeforeground="#FFFFFF", relief="flat",
             command=self.save_task, padx=8, pady=8, cursor="hand2"
         )
-        save_button.pack(pady=(30, 30), ipadx=20, ipady=5)
-      
+        self.canvas.create_window(600, 700, window=save_button, width=200, height=50)
+
         save_button.bind("<Enter>", lambda e: save_button.config(bg="#3498DB"))
         save_button.bind("<Leave>", lambda e: save_button.config(bg="#2980B9"))
 
     def create_gradient(self, *colors):
-      width = self.winfo_screenwidth()
-      height = self.winfo_screenheight()
-      gradient_steps = 100
-      num_colors = len(colors)
+        width = self.winfo_screenwidth()
+        height = self.winfo_screenheight()
+        gradient_steps = 100
+        num_colors = len(colors)
 
-      for i in range(gradient_steps):
-          t = i / gradient_steps  
-          color = colors[0]  
-          for j in range(1, num_colors):
-              color = self.mix_colors(color, colors[j], t)  
-          self.canvas.create_rectangle(0, height * i / gradient_steps, width,
-                                       height * (i + 1) / gradient_steps, outline="", fill=color)
+        for i in range(gradient_steps):
+            t = i / gradient_steps  
+            color = colors[0]  
+            for j in range(1, num_colors):
+                color = self.mix_colors(color, colors[j], t)  
+            self.canvas.create_rectangle(0, height * i / gradient_steps, width,
+                                         height * (i + 1) / gradient_steps, outline="", fill=color)
 
     def mix_colors(self, color1, color2, t):
-       c1 = tuple(int(color1.lstrip("#")[i:i + 2], 16) for i in (0, 2, 4))
-       c2 = tuple(int(color2.lstrip("#")[i:i + 2], 16) for i in (0, 2, 4))
-       mixed = tuple(int(c1[i] * (1 - t) + c2[i] * t) for i in range(3))
-       return "#%02x%02x%02x" % mixed
+        c1 = tuple(int(color1.lstrip("#")[i:i + 2], 16) for i in (0, 2, 4))
+        c2 = tuple(int(color2.lstrip("#")[i:i + 2], 16) for i in (0, 2, 4))
+        mixed = tuple(int(c1[i] * (1 - t) + c2[i] * t) for i in range(3))
+        return "#%02x%02x%02x" % mixed
 
     def save_task(self):
         title = self.task_entry.get().strip()
+        Execution_Time = self.Ex_Time.get().strip()
         description = self.desc_entry.get("1.0", "end-1c").strip()
         priority = self.priority_var.get().strip()
 
@@ -224,10 +225,10 @@ class AddTaskPage(tk.Frame):
         elif priority == "Select Priority":
             custom_messagebox("Error", "Please select a priority level for the task!!!", "orange")
         else:
-            
             current_date = datetime.datetime.now().strftime("%d/%m/%Y")
             current_datetime = datetime.datetime.now()
-            current_time = current_datetime.strftime("%H:%M:%S")
+            # :%S
+            current_time = current_datetime.strftime("%H:%M")
             serial_number = len(self.controller.tasks) + 1
             task_data = {
                 "serial": serial_number,
@@ -235,14 +236,20 @@ class AddTaskPage(tk.Frame):
                 "title": title,
                 "description": description,
                 "priority": priority,
-                "time": current_time
+                "time": current_time,
+                "ExecutionTime":Execution_Time
             }
             self.controller.tasks.append(task_data)
             custom_messagebox("Success", f"Task No {serial_number} added successfully!!!", "green")
-            
+
             self.task_entry.delete(0, tk.END)
             self.desc_entry.delete("1.0", tk.END)
             self.priority_var.set("Select Priority")
+
+
+
+            # --------------------Task View Page---------------------------
+
 
 class ViewTasksPage(tk.Frame):
     def __init__(self, parent, controller):
