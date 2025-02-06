@@ -13,22 +13,22 @@ class TaskApp(tk.Tk):
         self.geometry("1550x850")
 
         self.tasks = []
-        self.theme = "white"
+        self.theme = "light" 
 
         main_frame = tk.Frame(self)
         main_frame.pack(fill="both", expand=True)
 
-        self.button_panel = tk.Frame(main_frame, width=250, padx=100, bg="#C3C7F3")
-        self.button_panel.pack(side="left", fill="y", padx=(10, 0), pady=20)
+        self.button_panel = tk.Frame(main_frame, width=100, padx=100, bg="#C3C7F3")
+        self.button_panel.pack(side="left", fill="y", padx=(10, 0), pady=10)
 
         separator = tk.Frame(main_frame, width=2, bg="black")
-        separator.pack(side="left", fill="y", padx=10)
+        separator.pack(side="left", fill="y", padx=0)
         
         self.content_frame = tk.Frame(main_frame)
         self.content_frame.pack(side="left", fill="both", expand=True, padx=10, pady=10)
   
         self.frames = {}
-        for Page in (HomePage, AddTaskPage, ViewTasksPage,StopwatchPage,SettingsPage):
+        for Page in (HomePage, AddTaskPage, ViewTasksPage, StopwatchPage, SettingsPage):
             page_name = Page.__name__
             frame = Page(parent=self.content_frame, controller=self)
             self.frames[page_name] = frame
@@ -43,13 +43,13 @@ class TaskApp(tk.Tk):
             ("➕ Add Task", "AddTaskPage"),
             ("📋 View Tasks", "ViewTasksPage"),
             ("⏱️ Stopwatch", "StopwatchPage"),
-             ("⚙️ Settings", "SettingsPage"),
+            ("⚙️ Settings", "SettingsPage"),
         ]
 
         title_label = tk.Label(
-        self.button_panel, text="HIVE", font=("Georgia", 34, "bold",),
-         fg="orange", bg="#34495E"
-       )
+            self.button_panel, text=" HIVE ", font=("Georgia", 34, "bold",),
+            fg="orange", bg="#34495E"
+        )
 
         title_label.pack(pady=(50, 20))      
             
@@ -59,13 +59,34 @@ class TaskApp(tk.Tk):
                 command=lambda name=page_name: self.show_frame(name)
             )
             button.pack(pady=15, padx=5, ipadx=20)    
-           
 
     def show_frame(self, page_name):
         frame = self.frames[page_name]
         if page_name == "ViewTasksPage":
             frame.refresh_task_list()
         frame.tkraise()
+
+    def switch_theme(self):
+        """Switch the theme between light and dark."""
+        if self.theme == "light":
+            self.theme = "dark"
+        else:
+            self.theme = "light"
+        
+        self.apply_theme()
+
+    def apply_theme(self):
+        """Apply the current theme to the app."""
+        if self.theme == "light":
+            self.config(bg="#ECF0F1") 
+            self.button_panel.config(bg="#f2f0ef")
+        else:
+            self.config(bg="#2C3E50")  
+            self.button_panel.config(bg="#34495E")
+
+        for frame in self.frames.values():
+            frame.apply_theme(self.theme)
+                    # ---------------------   Home Page    -------------------------------
 
 class HomePage(tk.Frame):
     def __init__(self, parent, controller):
