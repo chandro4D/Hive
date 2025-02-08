@@ -421,7 +421,7 @@ class ViewTasksPage(tk.Frame):
  
 
 
-                                #  --------------SettingsPage---------------------
+            #-------------------SettingsPage------------------------
 
 class SettingsPage(tk.Frame):
     def __init__(self, parent, controller):
@@ -443,7 +443,7 @@ class SettingsPage(tk.Frame):
         self.canvas.create_text(600, 120, text="Settings", font=("Georgia", 40, "bold"), fill="#6F4E37")
 
         self.theme_button = ttk.Button(
-            self, text="Switch to Dark Or Light", width=20, 
+            self, text="Switch Theme", width=15, 
             bootstyle="warning", command=self.toggle_theme
         )
         self.theme_button_window = self.canvas.create_window(250, 400, window=self.theme_button)
