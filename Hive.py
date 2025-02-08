@@ -253,123 +253,175 @@ class AddTaskPage(tk.Frame):
 
 class ViewTasksPage(tk.Frame):
     def __init__(self, parent, controller):
-        super().__init__(parent, bg="#F0F3F4")  
+        super().__init__(parent, bg="#D5DBDB")  
         self.controller = controller
-        self.configure(bg="#F0F3F4") 
-        
-        label = tk.Label(self, text="YOUR TASKS", font=("Georgia", 30, "bold"), fg="#34495E", bg="#F0F3F4")
-        label.pack(pady=(70, 50))
-                
-        columns_frame = tk.Frame(self, bg="#F0F3F4")
-        columns_frame.pack(fill="both", expand=True, padx=2)
-       
-        self.high_priority_frame = self.create_task_frame(columns_frame, "#E74C3C", "HIGH PRIORITY")
-        self.high_priority_frame.grid(row=0, column=0, sticky="nsew", padx=1, pady=2)
 
-        self.medium_priority_frame = self.create_task_frame(columns_frame, "#F39C12", "MEDIUM PRIORITY")
-        self.medium_priority_frame.grid(row=0, column=1, sticky="nsew", padx=1, pady=2)
-
-        self.low_priority_frame = self.create_task_frame(columns_frame, "#2ECC71", "LOW PRIORITY")
-        self.low_priority_frame.grid(row=0, column=2, sticky="nsew", padx=1, pady=2)
-       
-        columns_frame.columnconfigure(0, weight=1)
-        columns_frame.columnconfigure(1, weight=1)
-        columns_frame.columnconfigure(2, weight=1)
-
-    def create_task_frame(self, parent_frame, bg_color, title):
-        frame = tk.Frame(
-            parent_frame,
-            bg=bg_color,
-            padx=00,
-            pady=20,
-            relief="flat",
-            borderwidth=1,
-            highlightbackground="#BDC3C7", highlightthickness=1,
-            bd=0,
-            width=200
-        )
-        self.create_column(frame, title)
-        return frame
-
-    def create_column(self, frame, title):
-        
         label = tk.Label(
-            frame,
-            text=title,
-            font=("Georgia", 18, "bold"),
-            fg="#FFFFFF",
-            bg=frame["bg"]
+            self, 
+            text="📌 YOUR TASKS", 
+            font=("Georgia", 18, "bold"), 
+            fg="#2C3E50", 
+            bg="#D5DBDB"
         )
-        label.pack(pady=(10, 5))
-       
-        listbox = tk.Listbox(
-            frame,
-            font=("Helvetica", 14),
-            bg="#ECF0F1", 
-            fg="#2C3E50",
-            borderwidth=0,
-            highlightthickness=0,
-            selectbackground="#BDC3C7",  
-            selectforeground="#2C3E50",
-            height=10,
-            relief="flat",
-            bd=0,
-            width=30
-        )
-        listbox.pack(fill="both", padx=0, pady=5, expand=True)
-       
-        listbox.bind("<Double-1>", self.confirm_and_delete_task)
-        
-        listbox.bind("<Enter>", lambda event, lb=listbox: lb.config(bg="#D5DBDB"))
-        listbox.bind("<Leave>", lambda event, lb=listbox: lb.config(bg="#ECF0F1"))
+        label.pack(pady=(10, 10))
 
-        frame.listbox = listbox
+        self.create_task_table("🔥 High Priority Tasks", "#C0392B", 0)  
+        self.create_task_table("⚡ Medium Priority Tasks", "#D68910", 1)  
+        self.create_task_table("✅ Low Priority Tasks", "#1E8449", 2) 
+
+        self.refresh_task_list()
+
+    def create_task_table(self, title, color, row):
+        frame = tk.Frame(self, bg="#D5DBDB", height=200)  
+        frame.pack(fill="both", expand=False, padx=10, pady=5)
+
+        label = tk.Label(
+            frame, 
+            text=title, 
+            font=("Georgia", 14, "bold"), 
+            fg="white", 
+            bg=color, 
+            padx=10, 
+            pady=5
+        )
+        label.pack(fill="x")
+
+        table_scroll_y = tk.Scrollbar(frame, orient="vertical")
+
+        table = ttk.Treeview(
+            frame,
+            columns=("Serial", "DateTime", "ExecutionTime", "Title", "Description"),
+            show="headings",
+            yscrollcommand=table_scroll_y.set,
+            selectmode="browse",
+            height=6  
+        )
+
+        table_scroll_y.config(command=table.yview)
+        table_scroll_y.pack(side="right", fill="y")
+
+        # ALL Columns
+        table.heading("Serial", text="Serial No", anchor="center")
+        table.heading("DateTime", text="Date & Time", anchor="center")  
+        table.heading("ExecutionTime", text="Task Deadline", anchor="center")
+        table.heading("Title", text="Task Title", anchor="w")
+        table.heading("Description", text="Task Details", anchor="w")
+
+        style = ttk.Style()
+        style.configure("Treeview.Heading", font=("Helvetica", 15, "bold"), foreground="#1A5276")
+        style.configure("Treeview", font=("Helvetica", 15), foreground="#2C3E50", rowheight=21)
+
+        table.column("Serial", width=80, anchor="center")
+        table.column("DateTime", width=180, anchor="center")  
+        table.column("ExecutionTime", width=50, anchor="center")
+        table.column("Title", width=100, anchor="w")
+        table.column("Description", width=220, anchor="w")
+
+        table.pack(fill="both", expand=True, padx=5, pady=5, ipadx=5, ipady=5)
+
+        if row == 0:
+            self.high_priority_table = table
+        elif row == 1:
+            self.medium_priority_table = table
+        else:
+            self.low_priority_table = table
+
+        table.bind("<Double-1>", self.confirm_and_delete_task)
 
     def confirm_and_delete_task(self, event):
-        listbox = event.widget
-        selected_task_index = listbox.curselection()
-
-        if selected_task_index:
-            task_text = listbox.get(selected_task_index)
-           
-            confirm = messagebox.askyesno("Delete Task", f"Are you sure you want to delete this task?\n\n{task_text}")
+        selected_item = event.widget.selection()
+        if selected_item:
+            task_values = event.widget.item(selected_item, "values")
+            confirm = messagebox.askyesno("Delete Task", f"Are you sure you want to delete this task?\n\n{task_values}")
             if confirm:
-                self.delete_task(listbox, selected_task_index)
+                self.delete_task(task_values[0])  
 
-    def delete_task(self, listbox, selected_task_index):
-        task_text = listbox.get(selected_task_index)
-        listbox.delete(selected_task_index)
-       
-        task_serial = int(task_text.split(".")[0])
-        self.controller.tasks = [
-            task for task in self.controller.tasks if task["serial"] != task_serial
-        ]
-       
+    def delete_task(self, serial):
+        serial = int(serial)
+        self.controller.tasks = [task for task in self.controller.tasks if task["serial"] != serial]
+
         for index, task in enumerate(self.controller.tasks, start=1):
             task["serial"] = index
-       
+
         self.refresh_task_list()
 
     def refresh_task_list(self):
-        
-        for frame in [self.high_priority_frame, self.medium_priority_frame, self.low_priority_frame]:
-            frame.listbox.delete(0, tk.END)
-        
+        self.high_priority_table.delete(*self.high_priority_table.get_children())
+        self.medium_priority_table.delete(*self.medium_priority_table.get_children())
+        self.low_priority_table.delete(*self.low_priority_table.get_children())
+
+        high_priority_serial = 1
+        medium_priority_serial = 1
+        low_priority_serial = 1
+
         for task in self.controller.tasks:
-            task_text = f"{task['serial']}.{task['date']}({task['time']})-->{task['title']}-->{task['description']}"
+            table = None
+            serial = None
+
             if task["priority"] == "High":
-                self.high_priority_frame.listbox.insert(tk.END, task_text)
+                table = self.high_priority_table
+                serial = high_priority_serial
+                high_priority_serial += 1
             elif task["priority"] == "Medium":
-                self.medium_priority_frame.listbox.insert(tk.END, task_text)
+                table = self.medium_priority_table
+                serial = medium_priority_serial
+                medium_priority_serial += 1
             elif task["priority"] == "Low":
-                self.low_priority_frame.listbox.insert(tk.END, task_text)
-       
-        for frame, priority in zip(
-            [self.high_priority_frame, self.medium_priority_frame, self.low_priority_frame],
-            ["High", "Medium", "Low"]
-        ):
-            if not frame.listbox.size():
-                frame.listbox.insert(tk.END, "          No Tasks Added Yet!!")
+                table = self.low_priority_table
+                serial = low_priority_serial
+                low_priority_serial += 1
+
+            if table:
+                
+                date_time = f"{task['date']} {task['time']}"  
+
+                task_data = (
+                    serial,  
+                    date_time,
+                    task["ExecutionTime"],
+                    task["title"],
+                    task["description"]
+                )
+
+                task_item = table.insert(
+                    "",
+                    "end",
+                    values=task_data
+                )
+
+                table.item(task_item, values=(
+                    serial,  
+                    f"{task['date']} ({task['time']})",
+                    f"                           {task['ExecutionTime']}",
+                    f" {task['title']}",
+                    f"     {task['description']}",
+                ))
+
+        # For No Tasks message
+        for table in [self.high_priority_table, self.medium_priority_table, self.low_priority_table]:
+            if not table.get_children():
+                
+                for _ in range(2):  
+                    table.insert("", "end", values=("", "", "", "", ""))  
+
+                no_task_message = table.insert(
+                    "", 
+                    "end", 
+                    values=("", "", "", "", " " * 10 + "⚠ No Tasks Added Yet! ⚠")  
+                )
+
+                table.tag_configure("no_tasks", font=("Helvetica", 16, "bold"), foreground="red")
+
+                table.item(no_task_message, tags=("no_tasks",))
+
+                
+                table.column("#3", width=400, anchor="w")  
+                table.column("#0", width=400, anchor="w")  
+                table.item(no_task_message, values=(  "", ""," " * 15 + "⚠ No Tasks Added Yet! ⚠"))
+ 
+
+
+                                #  --------------SettingsPage---------------------
 
 class SettingsPage(tk.Frame):
     def __init__(self, parent, controller):
