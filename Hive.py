@@ -47,7 +47,7 @@ class TaskApp(tk.Tk):
         ]
 
         title_label = tk.Label(
-            self.button_panel, text=" HIVE ", font=("Georgia", 34, "bold",),
+            self.button_panel, text=" HIVE ", font=("Georgia", 35, "bold",),
             fg="orange", bg="#34495E"
         )
 
@@ -397,7 +397,7 @@ class ViewTasksPage(tk.Frame):
                     f"     {task['description']}",
                 ))
 
-        # For No Tasks message
+                    # For No Tasks message
         for table in [self.high_priority_table, self.medium_priority_table, self.low_priority_table]:
             if not table.get_children():
                 
